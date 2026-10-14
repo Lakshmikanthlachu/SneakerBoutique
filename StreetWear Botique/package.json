@@ -1,0 +1,15 @@
+{
+  "name": "voltyard-html-template",
+  "version": "1.0.0",
+  "description": "VOLTYARD — Sneaker & Streetwear Boutique HTML template (Tailwind CSS, dark/light, RTL, 3D effects)",
+  "private": true,
+  "scripts": {
+    "build": "tailwindcss -i ./src/input.css -o ./assets/css/style.css --minify",
+    "build:dev": "tailwindcss -i ./src/input.css -o ./assets/css/style.css",
+    "watch": "tailwindcss -i ./src/input.css -o ./assets/css/style.css --watch"
+  },
+  "devDependencies": {
+    "tailwindcss": "3.4.17"
+  },
+  "license": "SEE LICENSE IN README.md"
+}
