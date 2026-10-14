@@ -52,7 +52,7 @@
       <div class="absolute -top-40 end-0 -z-10 h-[620px] w-[620px] rounded-full bg-brand/25 blur-[140px]" data-depth="0.25" aria-hidden="true"></div>
       <div class="absolute bottom-0 start-0 -z-10 h-[420px] w-[420px] rounded-full bg-[#3355FF]/20 blur-[120px]" data-depth="0.15" aria-hidden="true"></div>
       <div class="grid-floor -z-10 animate-gridmove opacity-60" aria-hidden="true"></div>
-      <div class="container-x grid grid-cols-1 items-center gap-10 pb-16 pt-[calc(var(--header-h)+40px)] lg:min-h-[100svh] lg:grid-cols-12 lg:gap-6 lg:pb-10">
+      <div class="container-x grid grid-cols-1 items-center gap-y-10 pb-16 pt-[calc(var(--header-h)+40px)] lg:min-h-[100svh] lg:grid-cols-12 lg:gap-6 lg:pb-10 gap-x-8 lg:gap-x-[min(4vw,56px)]">
         <div class="relative z-10 lg:col-span-5">
           <p class="eyebrow eyebrow-light reveal">Drop 07 · Live countdown</p>
           <h1 id="hero-title" class="h-display mt-5 text-[clamp(3.6rem,9vw,8.2rem)]" data-split>
@@ -94,7 +94,8 @@
     </div>
 
     <!-- ============ Perks ============ -->
-    <section class="pb-20 pt-10 lg:pb-28 lg:pt-16" aria-label="Why shop with us">
+    <section class="pb-20 pt-10 lg:pb-28 lg:pt-16" aria-labelledby="perks-title">
+      <h2 id="perks-title" class="sr-only">Why shop with KAIROS</h2>
       <div class="container-x grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4"><div class="reveal h-full" style="--d:0.00s"><div class="group flex h-full flex-col overflow-hidden rounded-3xl border border-fg/10 bg-surface transition duration-500 hover:-translate-y-1 hover:shadow-xl">
           <div class="relative aspect-[16/10] overflow-hidden"><img src="https://images.unsplash.com/photo-1705637841183-e77eede5837b?auto=format&fit=crop&w=600&q=80&h=380" alt="" loading="lazy" width="600" height="380" class="h-full w-full object-cover transition duration-700 group-hover:scale-105">
             <span class="absolute bottom-3 start-3 grid h-11 w-11 place-items-center rounded-2xl bg-accent text-ink shadow-lg"><svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg></span></div>
@@ -268,7 +269,7 @@
 
     <!-- ============ Release calendar preview ============ -->
     <section class="section" aria-labelledby="cal-title">
-      <div class="container-x grid grid-cols-1 gap-12 lg:grid-cols-12">
+      <div class="container-x grid grid-cols-1 gap-y-12 lg:grid-cols-12 gap-x-8 lg:gap-x-[min(4vw,56px)]">
         <div class="lg:col-span-5">
           <div class="lg:sticky lg:top-28">
             <p class="eyebrow reveal">Release calendar</p>
@@ -297,7 +298,7 @@
               <div class="flex flex-wrap items-center gap-2"><span class="badge badge-raffle">Raffle</span><span class="font-mono text-[11px] uppercase tracking-widest text-muted">Halfcourt · 10:00 ET</span></div>
               <h3 class="mt-2 text-lg font-bold leading-snug">Halfcourt Legacy High &quot;Chicago Fade&quot;</h3>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex flex-wrap items-center gap-3">
               <span class="font-display text-2xl">$245</span>
               <button type="button" class="btn btn-sm btn-ghost" data-ics="2026-10-18T100000" data-title="Halfcourt Legacy High &quot;Chicago Fade&quot;" data-method="Raffle" data-price="$245"><svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Add</button>
             </div>
@@ -312,7 +313,7 @@
               <div class="flex flex-wrap items-center gap-2"><span class="badge badge-live">First come</span><span class="font-mono text-[11px] uppercase tracking-widest text-muted">Aero Lab · 11:00 ET</span></div>
               <h3 class="mt-2 text-lg font-bold leading-snug">Aero Lab Float Levitate</h3>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex flex-wrap items-center gap-3">
               <span class="font-display text-2xl">$190</span>
               <button type="button" class="btn btn-sm btn-ghost" data-ics="2026-10-24T110000" data-title="Aero Lab Float Levitate" data-method="First come" data-price="$190"><svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Add</button>
             </div>
@@ -327,7 +328,7 @@
               <div class="flex flex-wrap items-center gap-2"><span class="badge badge-soon">In-store only</span><span class="font-mono text-[11px] uppercase tracking-widest text-muted">Halfcourt · 14:00 ET</span></div>
               <h3 class="mt-2 text-lg font-bold leading-snug">Halfcourt Press Mid &quot;Shadow&quot;</h3>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex flex-wrap items-center gap-3">
               <span class="font-display text-2xl">$175</span>
               <button type="button" class="btn btn-sm btn-ghost" data-ics="2026-10-24T140000" data-title="Halfcourt Press Mid &quot;Shadow&quot;" data-method="In-store only" data-price="$175"><svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Add</button>
             </div>
@@ -342,7 +343,7 @@
               <div class="flex flex-wrap items-center gap-2"><span class="badge badge-raffle">Raffle</span><span class="font-mono text-[11px] uppercase tracking-widest text-muted">Paradox · 10:00 ET</span></div>
               <h3 class="mt-2 text-lg font-bold leading-snug">Paradox Signal Low &quot;Redline&quot;</h3>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex flex-wrap items-center gap-3">
               <span class="font-display text-2xl">$260</span>
               <button type="button" class="btn btn-sm btn-ghost" data-ics="2026-11-01T100000" data-title="Paradox Signal Low &quot;Redline&quot;" data-method="Raffle" data-price="$260"><svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Add</button>
             </div>
@@ -357,7 +358,7 @@
               <div class="flex flex-wrap items-center gap-2"><span class="badge badge-raffle">Raffle</span><span class="font-mono text-[11px] uppercase tracking-widest text-muted">Paradox · 10:00 ET</span></div>
               <h3 class="mt-2 text-lg font-bold leading-snug">Paradox &quot;Paisley Club&quot; Low</h3>
             </div>
-            <div class="flex items-center gap-3">
+            <div class="flex flex-wrap items-center gap-3">
               <span class="font-display text-2xl">$290</span>
               <button type="button" class="btn btn-sm btn-ghost" data-ics="2026-11-07T100000" data-title="Paradox &quot;Paisley Club&quot; Low" data-method="Raffle" data-price="$290"><svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Add</button>
             </div>
@@ -491,7 +492,7 @@
     <div class="marquee tape -rotate-1 scale-[1.02]" aria-hidden="true">
       <div class="marquee-track animate-marquee"><span class="flex items-center gap-6 px-6 font-display text-2xl uppercase tracking-wide sm:text-3xl">Never miss a drop<svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9L12 3z"/></svg></span><span class="flex items-center gap-6 px-6 font-display text-2xl uppercase tracking-wide sm:text-3xl">Raffles every friday<svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9L12 3z"/></svg></span><span class="flex items-center gap-6 px-6 font-display text-2xl uppercase tracking-wide sm:text-3xl">Authentic or it's free<svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9L12 3z"/></svg></span><span class="flex items-center gap-6 px-6 font-display text-2xl uppercase tracking-wide sm:text-3xl">Same-day NYC delivery<svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9L12 3z"/></svg></span><span class="flex items-center gap-6 px-6 font-display text-2xl uppercase tracking-wide sm:text-3xl">Never miss a drop<svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9L12 3z"/></svg></span><span class="flex items-center gap-6 px-6 font-display text-2xl uppercase tracking-wide sm:text-3xl">Raffles every friday<svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9L12 3z"/></svg></span><span class="flex items-center gap-6 px-6 font-display text-2xl uppercase tracking-wide sm:text-3xl">Authentic or it's free<svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9L12 3z"/></svg></span><span class="flex items-center gap-6 px-6 font-display text-2xl uppercase tracking-wide sm:text-3xl">Same-day NYC delivery<svg viewBox="0 0 24 24" class="h-5 w-5 fill-current" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9L12 3z"/></svg></span></div>
     </div>
-    <div class="container-x grid grid-cols-1 gap-12 py-20 lg:grid-cols-12 lg:gap-8">
+    <div class="container-x grid grid-cols-1 gap-y-12 py-20 lg:grid-cols-12 lg:gap-8 gap-x-8 lg:gap-x-[min(4vw,56px)]">
       <div class="lg:col-span-4">
         <a href="index.html" class="group inline-flex items-center gap-2.5 text-fg" aria-label="KAIROS home"><svg viewBox="0 0 40 40" class="h-9 w-9 shrink-0 transition duration-500 group-hover:rotate-[-8deg]" aria-hidden="true"><rect x="2" y="2" width="36" height="36" rx="10" fill="#FF5B2E"/><path d="M11 10h6v8.2L24.2 10h7.3l-8.3 9.6L32 30h-7.4l-5.8-7.2-1.8 2.1V30h-6z" fill="#0A0A0B"/></svg><span class="font-display text-[26px] uppercase leading-none tracking-[0.04em]">Kairos</span></a>
         <p class="mt-5 max-w-sm text-fg/80">Specialty sneaker &amp; streetwear boutique. Limited drops, verified grails and heavyweight basics — curated in SoHo since 2014.</p>

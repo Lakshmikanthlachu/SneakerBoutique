@@ -41,6 +41,15 @@ Tailwind scans `*.html` and `assets/js/**/*.js`. If you add a class that isn't u
 
 ---
 
+
+## Deploying (Vercel, Netlify, any static host)
+
+`npm run build` compiles the CSS and copies the 14 pages and `assets/` into `public/`.
+
+- **Vercel:** `vercel.json` is included (build command `npm run build`, output directory `public`). Import the repo and deploy. If Project Settings has an Output Directory override, clear it or set it to `public`.
+- **Netlify:** build command `npm run build`, publish directory `public`.
+- **Plain hosting / cPanel:** no build needed. Upload the `.html` files and the `assets/` folder.
+
 ## Folder structure
 
 ```
@@ -51,6 +60,8 @@ Tailwind scans `*.html` and `assets/js/**/*.js`. If you add a class that isn't u
 │   ├── fonts/              self-hosted Anton, Space Grotesk, JetBrains Mono (SIL OFL)
 │   └── img/                favicon.svg, apple-touch-icon.png
 ├── src/input.css           source styles: theme tokens, components, 3D effects
+├── scripts/build-public.mjs  copies the site into public/ for deployment
+├── vercel.json             Vercel build settings
 ├── tailwind.config.js
 └── package.json
 ```
@@ -131,6 +142,16 @@ All motion respects `prefers-reduced-motion`.
 
 - Automated contrast audit in light and dark mode: body text meets WCAG AA
 - Product page: gallery and details columns are equal height at every desktop width
+
+## Test results (latest run)
+
+- W3C Nu HTML Checker: 0 errors on all 14 pages
+- axe-core (WCAG 2.1 AA + best practices): 0 violations in light/dark × LTR/RTL
+- Links: 833 internal links/anchors and 323 external links verified; no dead `#` links
+- Keyboard: skip link, visible focus on every tab stop, Escape closes menus, focus trap in drawers and modals
+- 260 buttons and 12 forms exercised on desktop and mobile with no JavaScript errors; also works with browser storage blocked and with JavaScript disabled
+- Responsive: no horizontal scroll at 320–2560 px in every theme/direction; holds at 200% text size
+- Performance: CSS 15 KB and JS 13 KB gzipped; layout shift at most 0.04
 
 ## Social links
 

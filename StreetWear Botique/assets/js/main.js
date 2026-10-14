@@ -680,6 +680,9 @@
     el.classList.add(open ? 'badge-live' : 'badge-raffle');
   });
   $$('[data-year]').forEach((y) => { y.textContent = new Date().getFullYear(); });
+  // Visible focus for embedded maps (focus inside a cross-origin iframe doesn't trigger :focus-within everywhere)
+  window.addEventListener('blur', () => setTimeout(() => { const a = document.activeElement; if (a && a.tagName === 'IFRAME' && a.parentElement) { a.parentElement.classList.add('is-focused'); a.scrollIntoView({ block: 'nearest' }); } }, 0));
+  window.addEventListener('focus', () => $$('.map-frame.is-focused').forEach((m) => m.classList.remove('is-focused')));
 
   /* 21 Stack cards: scale previous card as the next one overlaps ---------------- */
   const stacks = $$('.stack-card');
