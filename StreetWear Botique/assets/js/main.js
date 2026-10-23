@@ -38,7 +38,7 @@
     const cols = getComputedStyle(grid).gridTemplateColumns.split(' ').filter(Boolean).length || 1;
     const need = (cols - (items.length % cols)) % cols;
     const variants = Array.from(tpl.content.children);
-    for (let i = 0; i < need; i++) { const n = variants[i % variants.length].cloneNode(true); n.classList.add('grid-filler'); grid.appendChild(n); }
+    for (let i = 0; i < need; i++) { const n = variants[i % variants.length].cloneNode(true); n.classList.add('grid-filler'); grid.appendChild(n); if (window.krReveal) window.krReveal(n); }
   };
   let fillT = 0;
   window.addEventListener('resize', () => { clearTimeout(fillT); fillT = setTimeout(() => document.querySelectorAll('[data-fill]').forEach(fillGrid), 150); });
@@ -148,7 +148,9 @@
       if (en.isIntersecting) { en.target.classList.add('is-in'); io.unobserve(en.target); }
     }), { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
     revealEls.forEach((el) => io.observe(el));
-  } else revealEls.forEach((el) => el.classList.add('is-in'));
+    // Cards added later (grid fillers) animate in the same way
+    window.krReveal = (root) => [root, ...root.querySelectorAll('.reveal, .reveal-x')].filter((el) => el.matches('.reveal, .reveal-x')).forEach((el) => io.observe(el));
+  } else { revealEls.forEach((el) => el.classList.add('is-in')); window.krReveal = (root) => [root, ...root.querySelectorAll('.reveal, .reveal-x')].forEach((el) => el.classList.add('is-in')); }
 
   /* 07 Tilt cards + mouse/scroll parallax --------------------------------- */
   if (finePointer && !reduceMotion) {
@@ -322,7 +324,7 @@
       cartList.appendChild(li);
     });
   };
-  const saveCart = () => { store.set('kr-cart', JSON.stringify(cart)); renderCart(); };
+  const saveCart = () => { store.set('kr-cart', JSON.stringify(cart)); renderCart(); window.dispatchEvent(new Event('kr:cart')); };
   document.addEventListener('click', (e) => {
     const b = e.target.closest('[data-add-to-cart]');
     if (!b) return;
@@ -337,6 +339,298 @@
     toast(`${b.dataset.name} added to bag`);
   });
   renderCart();
+
+  /* 11b Wishlist (heart toggles, header count, drawer; persisted when storage is available) */
+  let wish = [];
+  try { wish = JSON.parse(store.get('kr-wish', '[]')) || []; } catch (e) { wish = []; }
+  const wishList = $('[data-wish-items]');
+  const syncHearts = () => {
+    $$('[data-wish]').forEach((b) => {
+      const on = wish.some((w) => w.name === b.dataset.name);
+      b.setAttribute('aria-pressed', String(on));
+      const base = b.getAttribute('aria-label').replace(/^(Save|Remove) /, '').replace(/ (to|from) wishlist$/, '');
+      b.setAttribute('aria-label', on ? `Remove ${base} from wishlist` : `Save ${base} to wishlist`);
+    });
+  };
+  const renderWish = () => {
+    $$('[data-wish-count]').forEach((b) => { b.textContent = wish.length; b.hidden = wish.length === 0; });
+    $$('[data-wish-empty]').forEach((b) => { b.hidden = wish.length > 0; });
+    $$('[data-wish-footer]').forEach((b) => { b.hidden = wish.length === 0; });
+    syncHearts();
+    if (!wishList) return;
+    wishList.innerHTML = '';
+    wish.forEach((item, idx) => {
+      const li = document.createElement('li');
+      li.className = 'flex items-center gap-4 border-b border-fg/10 py-4';
+      li.innerHTML = `<img src="" alt="" width="80" height="80" class="h-20 w-20 shrink-0 rounded-2xl bg-surface2 object-cover">
+        <div class="min-w-0 flex-1"><a href="product-details.html" class="line-clamp-2 font-bold hover:text-accenttext"></a><p class="mt-1 font-display text-xl"></p>
+        <div class="mt-2 flex items-center gap-4"><button type="button" class="text-xs font-bold uppercase tracking-wider text-accenttext hover:underline" data-wmove>Move to bag</button>
+        <button type="button" class="text-xs font-bold uppercase tracking-wider text-muted hover:text-danger hover:underline" data-wrm>Remove</button></div></div>`;
+      const img = li.querySelector('img'); img.src = item.img; img.alt = item.name;
+      li.querySelector('a').textContent = item.name;
+      li.querySelector('p.font-display').textContent = money(item.price);
+      li.querySelector('[data-wrm]').addEventListener('click', () => { wish.splice(idx, 1); saveWish(); });
+      li.querySelector('[data-wmove]').addEventListener('click', () => {
+        const key = item.name; const found = cart.find((i) => i.key === key);
+        found ? found.qty++ : cart.push({ key, name: item.name, price: item.price, img: item.img, size: '', qty: 1 });
+        wish.splice(idx, 1); saveCart(); saveWish(); toast(`${item.name} moved to bag`);
+      });
+      wishList.appendChild(li);
+    });
+  };
+  const saveWish = () => { store.set('kr-wish', JSON.stringify(wish)); renderWish(); };
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-wish]');
+    if (!b) return;
+    e.preventDefault(); e.stopPropagation();
+    const i = wish.findIndex((w) => w.name === b.dataset.name);
+    if (i > -1) { wish.splice(i, 1); toast('Removed from wishlist'); }
+    else { wish.push({ name: b.dataset.name, price: parseFloat(b.dataset.price), img: b.dataset.img }); toast('Saved to your wishlist'); }
+    saveWish();
+  });
+  renderWish();
+
+  /* 11c Colourway switcher: swaps gallery, title and bag/wishlist data without a reload */
+  $$('[data-colourway]').forEach((sw) => sw.addEventListener('click', () => {
+    let d; try { d = JSON.parse(sw.dataset.colourway); } catch (e) { return; }
+    const scope = sw.closest('[data-product-scope]') || document;
+    $$('[data-colourway]', scope).forEach((x) => x.setAttribute('aria-pressed', String(x === sw)));
+    $$('[data-cw-name],[data-cw-label]', scope).forEach((el) => { el.textContent = d.name; });
+    $$('[data-cw-color]', scope).forEach((el) => { el.textContent = d.color; });
+    const full = `Aero Lab Pulse 07 ${d.name}`;
+    $$('[data-add-to-cart],[data-wish]', scope).forEach((b) => { b.dataset.name = full; b.dataset.img = d.img; });
+    const g = $('[data-gallery]', scope);
+    if (g) {
+      const main = $('[data-gallery-main]', g);
+      $$('[data-gallery-thumb]', g).forEach((t, i) => {
+        const it = d.gallery[i]; if (!it) return;
+        t.dataset.galleryThumb = it[0];
+        const im = t.querySelector('img'); im.src = it[1]; im.alt = `${full}, ${it[2].toLowerCase()}`;
+        t.setAttribute('aria-label', `Show image: ${it[2]}`);
+        t.setAttribute('aria-pressed', String(i === 0));
+      });
+      if (main) { main.classList.add('opacity-0', 'scale-95'); setTimeout(() => { main.src = d.gallery[0][0]; main.alt = `${full}, side profile`; main.classList.remove('opacity-0', 'scale-95'); }, 200); }
+    }
+    renderWish();
+  }));
+
+  /* Input filters: [data-filter="digits"] numbers only; [data-filter="phone"] digits + leading "+" (US numbers auto-format) */
+  const FILTERS = { digits: /[^0-9]/g, phone: /[^0-9+]/g };
+  const formatPhone = (v) => {
+    if (v.startsWith('+')) return '+' + v.slice(1).replace(/\D/g, '').slice(0, 15);
+    const d = v.replace(/\D/g, '').slice(0, 10);
+    if (d.length > 6) return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
+    if (d.length > 3) return `(${d.slice(0, 3)}) ${d.slice(3)}`;
+    return d;
+  };
+  // Clean text BEFORE it lands (so maxlength never cuts off digits that follow letters)
+  const insertClean = (f, raw) => {
+    let txt = f.dataset.filter === 'phone' ? raw.replace(/[^0-9+]/g, '') : raw.replace(FILTERS.digits, '');
+    const start = f.selectionStart ?? f.value.length, end = f.selectionEnd ?? f.value.length;
+    const max = parseInt(f.dataset.maxlen, 10) || (f.maxLength > 0 ? f.maxLength : Infinity);
+    const room = Math.max(0, max - (f.value.length - (end - start)));
+    if (f.dataset.filter !== 'phone') txt = txt.slice(0, room);
+    f.setRangeText(txt, start, end, 'end');
+    f.dispatchEvent(new Event('input', { bubbles: true }));
+  };
+  document.addEventListener('beforeinput', (e) => {
+    const f = e.target.closest && e.target.closest('[data-filter]');
+    if (!f || !e.inputType.startsWith('insert')) return;
+    const data = e.data ?? (e.dataTransfer && e.dataTransfer.getData('text')) ?? '';
+    if (!data) return;
+    const allowed = f.dataset.filter === 'phone' ? /^[0-9+()\s.-]*$/ : /^[0-9]*$/;
+    if (allowed.test(data)) return;
+    e.preventDefault();
+    if (data.length > 1) insertClean(f, data); // pasted / autofilled text: keep the digits
+  });
+  document.addEventListener('paste', (e) => {
+    const f = e.target.closest && e.target.closest('[data-filter]');
+    if (!f) return;
+    e.preventDefault();
+    insertClean(f, (e.clipboardData || window.clipboardData).getData('text'));
+  });
+  document.addEventListener('input', (e) => {
+    const f = e.target.closest && e.target.closest('[data-filter]');
+    if (!f) return;
+    if (f.dataset.filter === 'phone') { const v = formatPhone(f.value.replace(/[^0-9+]/g, '').replace(/(?!^)\+/g, '')); if (v !== f.value) f.value = v; }
+    else { const max = parseInt(f.dataset.maxlen, 10) || Infinity; const v = f.value.replace(FILTERS.digits, '').slice(0, max); if (v !== f.value) f.value = v; }
+  });
+
+  /* 11b Checkout: 3 steps + live summary + order placed popup ------------------ */
+  const co = $('[data-checkout]');
+  if (co) {
+    const form = $('[data-co-form]', co), panels = $$('[data-co-step]', co), dots = $$('[data-co-goto]', co), bar = $('[data-co-bar]', co);
+    const modal = document.getElementById('order-modal');
+    const TAX = 0.08875, FREE_OVER = 150;
+    const PROMOS = { KAIROS10: { type: 'pct', v: 10 }, FREESHIP: { type: 'ship' } };
+    let step = 1, maxStep = 1, promo = null, promoCode = '';
+    const fmt = (n) => '$' + n.toFixed(2);
+    const shipSel = () => form.querySelector('input[name="ship"]:checked');
+    const totals = () => {
+      const sub = cart.reduce((a, i) => a + i.qty * i.price, 0);
+      const disc = promo && promo.type === 'pct' ? Math.round(sub * promo.v) / 100 : 0;
+      const s = shipSel();
+      let ship = s ? parseFloat(s.dataset.shipPrice) : 0;
+      if (s && s.value === 'standard' && sub - disc >= FREE_OVER) ship = 0;
+      if (promo && promo.type === 'ship') ship = 0;
+      const tax = Math.round((sub - disc) * TAX * 100) / 100;
+      return { sub, disc, ship, tax, total: sub - disc + ship + tax, count: cart.reduce((a, i) => a + i.qty, 0) };
+    };
+    const setText = (sel, v) => $$(sel, co).forEach((n) => { n.textContent = v; });
+    const renderSummary = () => {
+      const empty = !cart.length;
+      $$('[data-co-empty]', co).forEach((n) => { n.hidden = !empty; });
+      $$('[data-co-main]', co).forEach((n) => { n.hidden = empty; });
+      if (empty) return;
+      const t = totals();
+      const list = $('[data-co-items]', co); list.innerHTML = '';
+      cart.forEach((item, idx) => {
+        const li = document.createElement('li');
+        li.className = 'flex gap-4 py-4';
+        li.innerHTML = `<span class="relative shrink-0"><img alt="" width="64" height="64" class="h-16 w-16 rounded-xl bg-surface2 object-cover"><span class="absolute -end-2 -top-2 grid h-6 min-w-6 place-items-center rounded-full bg-fg px-1 font-mono text-[11px] font-bold text-bg" data-q-badge></span></span>
+          <span class="min-w-0 flex-1"><span class="line-clamp-2 block font-bold leading-snug"></span><span class="mt-0.5 block font-mono text-[11px] uppercase tracking-wider text-muted" data-size></span>
+          <span class="mt-2 inline-flex items-center rounded-full border border-fg/15"><button type="button" class="grid h-7 w-7 place-items-center" data-q="-1" aria-label="Decrease quantity"><svg viewBox="0 0 24 24" class="h-3 w-3" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14"/></svg></button><span class="w-6 text-center text-xs font-bold" data-q-val></span><button type="button" class="grid h-7 w-7 place-items-center" data-q="1" aria-label="Increase quantity"><svg viewBox="0 0 24 24" class="h-3 w-3" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button></span></span>
+          <span class="font-display text-xl" data-line></span>`;
+        li.querySelector('img').src = item.img;
+        li.querySelector('.line-clamp-2').textContent = item.name;
+        li.querySelector('[data-size]').textContent = item.size ? `Size ${item.size}` : 'One size';
+        li.querySelector('[data-q-badge]').textContent = item.qty; li.querySelector('[data-q-val]').textContent = item.qty;
+        li.querySelector('[data-line]').textContent = fmt(item.price * item.qty);
+        $$('[data-q]', li).forEach((b) => b.addEventListener('click', () => { item.qty += parseInt(b.dataset.q, 10); if (item.qty < 1) cart.splice(idx, 1); saveCart(); }));
+        list.appendChild(li);
+      });
+      setText('[data-co-count]', t.count); setText('[data-co-sub]', fmt(t.sub));
+      setText('[data-co-ship]', t.ship === 0 ? 'Free' : fmt(t.ship)); setText('[data-co-tax]', fmt(t.tax));
+      setText('[data-co-total]', fmt(t.total)); setText('[data-co-total-top]', fmt(t.total));
+      $$('[data-co-disc-row]', co).forEach((n) => { n.hidden = !(promo && promo.type === 'pct'); });
+      setText('[data-co-disc]', '-' + fmt(t.disc)); setText('[data-co-disc-code]', promoCode);
+      const std = $('[data-ship-label="standard"]', co);
+      if (std) std.textContent = (t.sub - t.disc >= FREE_OVER || (promo && promo.type === 'ship')) ? 'Free' : fmt(parseFloat(form.querySelector('input[value="standard"]').dataset.shipPrice));
+    };
+    window.addEventListener('kr:cart', renderSummary);
+
+    const setStep = (n, focus = true) => {
+      step = n; maxStep = Math.max(maxStep, n);
+      panels.forEach((p) => { p.hidden = parseInt(p.dataset.coStep, 10) !== n; });
+      dots.forEach((d) => {
+        const k = parseInt(d.dataset.coGoto, 10); const dot = $('[data-co-dot]', d);
+        d.disabled = k > maxStep;
+        if (k === n) d.setAttribute('aria-current', 'step'); else d.removeAttribute('aria-current');
+        dot.className = 'grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 font-mono text-sm font-bold transition ' +
+          (k === n ? 'border-fg bg-fg text-bg' : k < maxStep || (k < n) ? 'border-accent bg-accent text-ink' : 'border-fg/20 text-fg/70');
+        dot.innerHTML = (k < n || (k < maxStep && k !== n)) ? '<svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M5 13l4 4L19 7"/></svg>' : String(k);
+      });
+      if (bar) bar.style.width = `${(n / 3) * 100}%`;
+      if (focus) {
+        const lg = $(`[data-co-step="${n}"] legend`, co);
+        const top = form.getBoundingClientRect().top + window.scrollY - 120;
+        if (window.scrollY > top) window.scrollTo({ top, behavior: reduceMotion ? 'auto' : 'smooth' });
+        if (lg) { lg.setAttribute('tabindex', '-1'); lg.focus({ preventScroll: true }); }
+      }
+    };
+    const luhn = (num) => { let sum = 0, alt = false; for (let i = num.length - 1; i >= 0; i--) { let d = +num[i]; if (alt) { d *= 2; if (d > 9) d -= 9; } sum += d; alt = !alt; } return sum % 10 === 0; };
+    const setInvalid = (f, bad) => { f.classList.toggle('is-invalid', bad); if (bad) f.setAttribute('aria-invalid', 'true'); else f.removeAttribute('aria-invalid'); };
+    const validatePanel = (panel) => {
+      let first = null;
+      $$('input, select, textarea', panel).forEach((f) => {
+        if (f.offsetParent === null || f.type === 'radio' || f.type === 'hidden') return;
+        const v = f.type === 'checkbox' ? f.checked : f.value.trim();
+        let ok = !f.required || !!v;
+        if (ok && v && f.type === 'email') ok = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v);
+        if (ok && v && f.dataset.pattern) ok = new RegExp(f.dataset.pattern).test(v);
+        if (ok && v && f.hasAttribute('data-phone')) { const d = v.replace(/\D/g, ''); ok = v.startsWith('+') ? d.length >= 8 && d.length <= 15 : d.length === 10; }
+        if (ok && v && f.hasAttribute('data-card')) { const d = v.replace(/\D/g, ''); ok = d.length >= 13 && d.length <= 19 && luhn(d); }
+        if (ok && v && f.hasAttribute('data-exp')) {
+          const m = v.match(/^(0[1-9]|1[0-2])\/(\d{2})$/); const now = new Date();
+          ok = !!m && (2000 + +m[2] > now.getFullYear() || (2000 + +m[2] === now.getFullYear() && +m[1] >= now.getMonth() + 1));
+        }
+        if (f.type === 'checkbox') { const e = $('[data-terms-error]', panel); if (e && f.id === 'co-terms') e.classList.toggle('!block', !ok); }
+        setInvalid(f, !ok);
+        if (!ok && !first) first = f;
+      });
+      if (first) { first.focus(); return false; }
+      return true;
+    };
+    $$('input, select, textarea', form).forEach((f) => f.addEventListener('input', () => { setInvalid(f, false); if (f.id === 'co-terms') { const e = $('[data-terms-error]', co); if (e) e.classList.remove('!block'); } }));
+    // Card + expiry formatting
+    const card = $('[data-card]', co), brand = $('[data-card-brand]', co);
+    if (card) card.addEventListener('input', () => {
+      const d = card.value.replace(/\D/g, '').slice(0, 19);
+      const amex = /^3[47]/.test(d);
+      card.value = amex ? d.replace(/^(\d{0,4})(\d{0,6})(\d{0,5}).*/, (m, a, b, c) => [a, b, c].filter(Boolean).join(' ')) : d.replace(/(\d{4})(?=\d)/g, '$1 ');
+      if (brand) brand.textContent = /^4/.test(d) ? 'Visa' : /^(5[1-5]|2[2-7])/.test(d) ? 'Mastercard' : amex ? 'Amex' : /^6/.test(d) ? 'Discover' : 'Card';
+    });
+    const exp = $('[data-exp]', co);
+    if (exp) exp.addEventListener('input', (e) => { let d = exp.value.replace(/\D/g, '').slice(0, 4); if (d.length >= 3) d = d.slice(0, 2) + '/' + d.slice(2); exp.value = d; });
+    $$('[data-pay-tab]', co).forEach((r) => r.addEventListener('change', () => { $$('[data-pay-panel]', co).forEach((p) => { p.hidden = p.dataset.payPanel !== r.value; }); }));
+    $$('input[name="ship"]', co).forEach((r) => r.addEventListener('change', renderSummary));
+
+    const next = () => {
+      const panel = $(`[data-co-step="${step}"]`, co);
+      if (!validatePanel(panel)) return;
+      if (step === 1) {
+        const v = (id) => (document.getElementById(id) || {}).value || '';
+        setText('[data-co-shipto]', `${v('co-address')}${v('co-apt') ? ', ' + v('co-apt') : ''}, ${v('co-city')}, ${v('co-state')} ${v('co-zip')}`);
+      }
+      setStep(Math.min(3, step + 1));
+    };
+    $$('[data-co-next]', co).forEach((b) => b.addEventListener('click', next));
+    $$('[data-co-back]', co).forEach((b) => b.addEventListener('click', () => setStep(Math.max(1, step - 1))));
+    dots.forEach((d) => d.addEventListener('click', () => { const k = parseInt(d.dataset.coGoto, 10); if (k <= maxStep) setStep(k); }));
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (step < 3) { next(); return; }
+      if (!validatePanel($('[data-co-step="3"]', co))) return;
+      const btn = $('[data-co-place]', co), label = $('[data-co-place-label]', co);
+      btn.disabled = true; btn.classList.add('opacity-80'); label.textContent = 'Processing…';
+      btn.insertAdjacentHTML('afterbegin', '<span class="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" data-spin></span>');
+      const t = totals(); const s = shipSel();
+      const thumbs = cart.map((i) => i.img);
+      setTimeout(() => {
+        const name = (document.getElementById('co-first') || {}).value || 'friend';
+        const email = (document.getElementById('co-email') || {}).value || 'your inbox';
+        const days = { standard: 3, express: 1 }[s.value];
+        const when = s.value === 'sameday' ? 'Today by 9PM' : s.value === 'pickup' ? 'Ready in 2 hours'
+          : new Date(Date.now() + days * 864e5).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        const m = $('#order-modal');
+        const put = (sel, v) => { const n = $(sel, m); if (n) n.textContent = v; };
+        put('[data-order-name]', name); put('[data-order-email]', email);
+        put('[data-order-no]', 'KR-' + String(Math.floor(100000 + Math.random() * 900000)));
+        put('[data-order-total]', fmt(t.total));
+        put('[data-order-method]', s.closest('label').querySelector('.font-bold').textContent);
+        put('[data-order-eta]', when);
+        const ul = $('[data-order-thumbs]', m); ul.innerHTML = '';
+        thumbs.slice(0, 5).forEach((src) => { const li = document.createElement('li'); li.innerHTML = '<img alt="" width="48" height="48" class="h-12 w-12 rounded-xl object-cover">'; li.querySelector('img').src = src; ul.appendChild(li); });
+        cart.length = 0; promo = null; promoCode = ''; saveCart();
+        btn.disabled = false; btn.classList.remove('opacity-80'); label.textContent = 'Place order'; const sp = $('[data-spin]', btn); if (sp) sp.remove();
+        form.reset(); maxStep = 1; setStep(1, false);
+        m.classList.remove('is-done'); void m.offsetWidth; m.classList.add('is-done');
+        openOc(m, null);
+      }, 1400);
+    });
+    const pf = $('[data-co-promo]', co), pmsg = $('[data-co-promo-msg]', co);
+    if (pf) pf.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const code = $('input', pf).value.trim().toUpperCase();
+      const ok = PROMOS[code];
+      promo = ok || null; promoCode = ok ? code : '';
+      pmsg.classList.remove('hidden'); const hint = $('[data-co-promo-hint]', co); if (hint && ok) hint.hidden = true;
+      pmsg.className = 'mt-2 text-xs font-semibold ' + (ok ? 'text-accenttext' : 'text-danger');
+      pmsg.textContent = ok ? (ok.type === 'pct' ? `${code} applied — ${ok.v}% off.` : `${code} applied — free shipping.`) : 'That code is not valid. Try KAIROS10 or FREESHIP.';
+      renderSummary();
+    });
+    $$('[data-co-sample]', co).forEach((b) => b.addEventListener('click', () => {
+      ['sampleA', 'sampleB'].forEach((k) => { const [name, price, img, size] = b.dataset[k].split('|'); cart.push({ key: name + size, name, price: parseFloat(price), img, size, qty: 1 }); });
+      saveCart(); toast('Sample items added');
+    }));
+    const sum = $('[data-co-summary]', co);
+    if (sum) {
+      if (window.innerWidth < 1024) sum.open = false;
+      sum.querySelector('summary').addEventListener('click', (e) => { if (window.innerWidth >= 1024) e.preventDefault(); });
+    }
+    renderSummary(); setStep(1, false);
+  }
 
   /* 13 Form validation (front-end demo) ----------------------------------- */
   $$('form[data-validate]').forEach((form) => {
@@ -592,7 +886,7 @@
     if (p) p.addEventListener('click', () => { if (mi > 0) { mi--; day = null; apply(); } });
     if (nx) nx.addEventListener('click', () => { if (mi < months.length - 1) { mi++; day = null; apply(); } });
     // Tap-to-flip on touch devices
-    $$('.flip [data-flip-toggle]', cal).forEach((b) => b.addEventListener('click', () => { const on = b.closest('.flip').classList.toggle('is-flipped'); if (!on) b.blur(); }));
+    cal.addEventListener('click', (e) => { const b = e.target.closest('.flip [data-flip-toggle]'); if (!b) return; const on = b.closest('.flip').classList.toggle('is-flipped'); if (!on) b.blur(); });
     apply();
   });
   // Add to calendar (.ics download) — works anywhere

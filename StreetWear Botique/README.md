@@ -4,22 +4,23 @@ A bold, trend-forward static HTML template for specialty sneaker and streetwear 
 
 ---
 
-## Pages (14)
+## Pages (15)
 
 | File | Purpose |
 |---|---|
 | `index.html` | **Home 01, Drop Culture.** 3D ring carousel hero, live countdown, crossed marquee tapes, live drops, shop-by-brand tiles, release preview, layered story, store-visit band |
 | `home-2.html` | **Home 02, Editorial Lookbook.** 3D photo-fan hero, perspective grid floor, sticky stacking chapters, draggable 3D colourway cube, shop-the-look hotspots, review marquees |
 | `shop.html` | **Shop by brand.** Brand tabs and spotlight banners, category/size/price/availability filters (desktop sidebar and mobile drawer), search, sort, empty state. Supports `shop.html?brand=aero` deep links |
-| `product-details.html` | Gallery, size picker (size required before add-to-bag), accordions, **3D orbit spec stage** with floating callouts, spec bento, related products, Product JSON-LD |
+| `product-details.html` | Gallery, **working colourway switcher** (swaps the gallery, title, price data and bag item without a reload), size picker (size required before add-to-bag), accordions, **3D orbit spec stage** with floating callouts, spec bento, related products, Product JSON-LD |
 | `release-calendar.html` | **Release calendar.** Month navigation, Cards/Month-grid views, method and brand filters, **3D flip cards**, `.ics` "Add to calendar" downloads, raffle explainer, FAQ |
 | `about.html` | Mission/vision/values, history timeline, team, testimonials |
 | `journal.html` | Editorial hero (floating layers, glass featured card), category tabs, search and **working pagination** (`?cat=`, `?q=`, `?page=` are shareable) |
 | `journal-details.html` | One template renders every article: `journal-details.html?post=<slug>`. Article data is in the page's `#posts-data` JSON block. Recent posts, previous/next and share links all update automatically |
 | `membership.html` | Pricing with a monthly/yearly toggle; every plan button opens a validated join form that carries the chosen plan and billing period |
 | `contact.html` | Contact cards, validated form, **store-visit booking** (date/time), live open/closed badge, OpenStreetMap embed (no API key) |
+| `checkout.html` | **Checkout flow** opened from the bag: shipping, then delivery method, then payment, with a live order summary (quantity edits, promo codes, shipping, tax). Placing the order shows a processing state and then an animated **Order placed** popup with order number, total and arrival date, and empties the bag. Phone, ZIP and security-code fields accept digits only (typing, pasting and autofill are all cleaned; US phone numbers auto-format). Test card `4242 4242 4242 4242`; promo codes `KAIROS10` (10% off) and `FREESHIP`. Demo only: no payment is processed |
 | `policies.html` | Privacy, Terms, and Shipping & returns (linked from the footer) |
-| `404.html`, `coming-soon.html`, `maintenance.html` | Utility pages with 3D extruded type, ring carousel and an animated shoebox |
+| `404.html`, `coming-soon.html`, `maintenance.html` | Utility pages that keep the full site header and footer: 3D extruded type, a ring carousel, and a maintenance page with a layered photo stack, moving caution tapes, a live system-status panel and a "notify me" form |
 
 The template has no login, register or dashboard pages, by design.
 
@@ -44,7 +45,7 @@ Tailwind scans `*.html` and `assets/js/**/*.js`. If you add a class that isn't u
 
 ## Deploying (Vercel, Netlify, any static host)
 
-`npm run build` compiles the CSS and copies the 14 pages and `assets/` into `public/`.
+`npm run build` compiles the CSS and copies the 15 pages and `assets/` into `public/`.
 
 - **Vercel:** `vercel.json` is included (build command `npm run build`, output directory `public`). Import the repo and deploy. If Project Settings has an Output Directory override, clear it or set it to `public`.
 - **Netlify:** build command `npm run build`, publish directory `public`.
@@ -53,7 +54,7 @@ Tailwind scans `*.html` and `assets/js/**/*.js`. If you add a class that isn't u
 ## Folder structure
 
 ```
-├── *.html                  13 pages
+├── *.html                  15 pages
 ├── assets/
 │   ├── css/style.css       compiled Tailwind output (don't edit by hand)
 │   ├── js/main.js          all interactions (data-attribute driven modules)
@@ -110,6 +111,8 @@ Every module turns on only when its markup is present. Main hooks:
 | `data-ring` | 3D ring carousel (drag, arrow keys, auto-spin) |
 | `data-countdown="2026-12-01T10:00:00-05:00"` | Countdown to a fixed date. `data-countdown-offset="76"` counts down from N hours after page load, for demos |
 | `data-add-to-cart data-name data-price data-img` | Demo bag (saved in `localStorage` when available) |
+| `data-wish data-name data-price data-img` | Heart toggle. Saves to the wishlist (header count + drawer, `kr-wish` in `localStorage`); items can be moved to the bag |
+| `data-colourway='{json}'` | Product page colourway swatch: name, colour label, cart image and four gallery images |
 | `data-shop`, `data-calendar`, `data-journal` | Shop filters, release calendar, journal filter and pagination |
 | `data-fill` + `<template data-filler>` | Completes the last row of a card grid with promo cards, so rows are never half empty |
 | `data-open="join-modal" data-plan="Insider"` | Opens the membership join form with that plan |
@@ -131,25 +134,29 @@ All motion respects `prefers-reduced-motion`.
 
 ## Pre-delivery QA performed
 
-- Overflow sweep on all 13 pages at 360, 390, 768, 900, 1024, 1180, 1280, 1440 and 1920 px, in light and dark, LTR and RTL: no horizontal scroll and no console errors
+- Overflow sweep on all 15 pages at 360, 390, 768, 900, 1024, 1180, 1280, 1440 and 1920 px, in light and dark, LTR and RTL: no horizontal scroll and no console errors
 - The header stays visible while scrolling (it never hides). Desktop nav appears at 1024 px with no collisions. The "Drop alerts" CTA appears only from 1280 px.
 - Mobile menu, bag and filter drawers are fixed overlays, so page content never shifts when they open
 - Header controls are never duplicated in the drawer (theme and RTL buttons move into the drawer only below 640 px)
 - Product-card CTAs stay on one line and align across every grid row at every width
 - Native date/time pickers follow the active theme (`color-scheme`), so the icons stay visible in dark mode
-- Every inner page shares one hero component with a photo background. The order is always breadcrumb → eyebrow → H1 → subtext, at the same height.
+- Every inner page shares one centred hero component with a photo background. The order is always breadcrumb → eyebrow → H1 → subtext, at the same height.
+- Headings never end with a full stop (enforced by the page generator)
+- Product grid photos all use light studio backdrops so rows look consistent
 - Favicon and touch icon files exist
 
+- Checkout: tested on 8 phone/tablet sizes (320–844 px, portrait and landscape) in light/dark and LTR/RTL across every step and the success popup; form fields use 16px text so iPhones don't auto-zoom
+- Checkout: 72 end-to-end checks (validation, card/expiry/ZIP rules, promo codes, totals, success popup) on desktop and mobile
 - Automated contrast audit in light and dark mode: body text meets WCAG AA
 - Product page: gallery and details columns are equal height at every desktop width
 
 ## Test results (latest run)
 
-- W3C Nu HTML Checker: 0 errors on all 14 pages
+- W3C Nu HTML Checker: 0 errors on all 15 pages
 - axe-core (WCAG 2.1 AA + best practices): 0 violations in light/dark × LTR/RTL
-- Links: 833 internal links/anchors and 323 external links verified; no dead `#` links
+- Links: 1,043 internal links/anchors and 331 external links verified; no dead `#` links
 - Keyboard: skip link, visible focus on every tab stop, Escape closes menus, focus trap in drawers and modals
-- 260 buttons and 12 forms exercised on desktop and mobile with no JavaScript errors; also works with browser storage blocked and with JavaScript disabled
+- 388 buttons and 14 forms exercised on desktop and mobile with no JavaScript errors; also works with browser storage blocked and with JavaScript disabled
 - Responsive: no horizontal scroll at 320–2560 px in every theme/direction; holds at 200% text size
 - Performance: CSS 15 KB and JS 13 KB gzipped; layout shift at most 0.04
 
