@@ -117,7 +117,7 @@
     });
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { $$('.offcanvas.is-open').forEach(closeOc); $$('.has-dropdown.is-open').forEach((d) => d.classList.remove('is-open')); } });
-  const mqDesktop = window.matchMedia('(min-width: 1024px)');
+  const mqDesktop = window.matchMedia('(min-width: 1280px)');
   mqDesktop.addEventListener('change', (e) => { if (e.matches) closeOc($('#mobile-menu')); });
 
   /* 05 Dropdowns (click/tap support; hover handled in CSS) ----------------- */
@@ -642,6 +642,10 @@
         const v = (f.type === 'checkbox') ? f.checked : f.value.trim();
         let valid = !!v;
         if (valid && f.type === 'email') valid = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.value.trim());
+        if (valid && f.minLength > 0 && f.type !== 'checkbox') valid = f.value.length >= f.minLength;
+        if (valid && f.dataset.match) { const m = form.querySelector(f.dataset.match); valid = !!m && m.value === f.value; }
+        const err = f.id ? form.querySelector(`[data-error-for="${f.id}"]`) : null;
+        if (err) err.hidden = valid;
         f.classList.toggle('is-invalid', !valid);
         f.setAttribute('aria-invalid', String(!valid));
         if (!valid && ok) { f.focus(); ok = false; }
@@ -651,10 +655,35 @@
       if (msg) msg.hidden = false;
       toast(form.dataset.validate || 'Thanks — we got it!');
       form.reset();
+      $$('[data-pw-meter]', form).forEach((m) => { m.dataset.level = '0'; });
       if (form.hasAttribute('data-close-on-success')) setTimeout(() => closeOc(form.closest('.offcanvas')), 350);
     });
     $$('[required]', form).forEach((f) => f.addEventListener('input', () => { f.classList.remove('is-invalid'); f.removeAttribute('aria-invalid'); }));
   });
+
+  /* 13b Auth helpers: show/hide password, strength meter, login <-> reset view */
+  $$('[data-pw-toggle]').forEach((b) => b.addEventListener('click', () => {
+    const inp = document.getElementById(b.getAttribute('aria-controls')); if (!inp) return;
+    const show = inp.type === 'password'; inp.type = show ? 'text' : 'password';
+    b.setAttribute('aria-pressed', String(show)); b.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+  }));
+  $$('[data-pw-meter]').forEach((m) => {
+    const inp = document.getElementById(m.dataset.pwMeter); if (!inp) return;
+    const label = m.querySelector('[data-pw-label]');
+    const names = ['Use 8+ characters', 'Weak', 'Okay', 'Good', 'Strong'];
+    inp.addEventListener('input', () => {
+      const v = inp.value; let sc = 0;
+      if (v.length >= 8) sc++; if (/[A-Z]/.test(v) && /[a-z]/.test(v)) sc++; if (/\d/.test(v)) sc++; if (/[^A-Za-z0-9]/.test(v) || v.length >= 12) sc++;
+      if (v.length < 8) sc = Math.min(sc, 1);
+      m.dataset.level = v ? String(Math.max(sc, 1)) : '0';
+      if (label) label.textContent = v ? names[Math.max(sc, 1)] : names[0];
+    });
+  });
+  $$('[data-auth-view]').forEach((b) => b.addEventListener('click', () => {
+    const scope = b.closest('[data-auth]'); if (!scope) return;
+    $$('[data-auth-panel]', scope).forEach((p) => { p.hidden = p.dataset.authPanel !== b.dataset.authView; });
+    const first = scope.querySelector(`[data-auth-panel="${b.dataset.authView}"] input`); if (first) first.focus();
+  }));
 
   /* 14 Shop filters --------------------------------------------------------- */
   $$('[data-shop]').forEach((shop) => {
@@ -788,11 +817,11 @@
       const title = $('[data-post-title]');
       if (title) { title.innerHTML = '<span class="split-line"><span></span></span>'; title.querySelector('span span').textContent = p.title; title.classList.add('is-in'); }
       text('[data-post-eyebrow]', `${p.cat} · ${p.minutes} min read`);
-      text('[data-post-sub]', p.excerpt); text('[data-post-crumb]', p.title);
+      text('[data-post-sub]', p.excerpt); 
       text('[data-post-author]', p.author); text('[data-post-role]', p.role); text('[data-post-bio]', p.bio);
       $$('[data-post-date]').forEach((el) => { el.textContent = p.date; el.setAttribute('datetime', p.iso); });
       $$('[data-post-avatar]').forEach((el) => { el.src = p.avatar; });
-      const hero = $('[data-post-hero]'); if (hero) hero.src = p.img;
+      const hero = $('[data-post-hero]'); if (hero) hero.src = p.img; const cover = $('[data-post-cover]'); if (cover) { cover.src = p.img; cover.alt = p.title; }
       const body = $('[data-post-body]'); if (body) body.innerHTML = p.body; // trusted, generated with the page
       document.title = `${p.title} — KAIROS Journal`;
       const md = $('meta[name="description"]'); if (md) md.setAttribute('content', p.excerpt);

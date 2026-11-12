@@ -4,7 +4,7 @@ A bold, trend-forward static HTML template for specialty sneaker and streetwear 
 
 ---
 
-## Pages (15)
+## Pages (17)
 
 | File | Purpose |
 |---|---|
@@ -19,10 +19,11 @@ A bold, trend-forward static HTML template for specialty sneaker and streetwear 
 | `membership.html` | Pricing with a monthly/yearly toggle; every plan button opens a validated join form that carries the chosen plan and billing period |
 | `contact.html` | Contact cards, validated form, **store-visit booking** (date/time), live open/closed badge, OpenStreetMap embed (no API key) |
 | `checkout.html` | **Checkout flow** opened from the bag: shipping, then delivery method, then payment, with a live order summary (quantity edits, promo codes, shipping, tax). Placing the order shows a processing state and then an animated **Order placed** popup with order number, total and arrival date, and empties the bag. Phone, ZIP and security-code fields accept digits only (typing, pasting and autofill are all cleaned; US phone numbers auto-format). Test card `4242 4242 4242 4242`; promo codes `KAIROS10` (10% off) and `FREESHIP`. Demo only: no payment is processed |
+| `login.html`, `signup.html` | Log in (with a forgot-password view) and Sign up (password strength meter, confirm-password check, terms checkbox). Show/hide password on every password field. Front-end only: connect your own auth backend. No dashboard pages |
 | `policies.html` | Privacy, Terms, and Shipping & returns (linked from the footer) |
 | `404.html`, `coming-soon.html`, `maintenance.html` | Utility pages that keep the full site header and footer: 3D extruded type, a ring carousel, and a maintenance page with a layered photo stack, moving caution tapes, a live system-status panel and a "notify me" form |
 
-The template has no login, register or dashboard pages, by design.
+The template has no dashboard pages, by design. Log in and Sign up live in the header on every page.
 
 ---
 
@@ -45,7 +46,7 @@ Tailwind scans `*.html` and `assets/js/**/*.js`. If you add a class that isn't u
 
 ## Deploying (Vercel, Netlify, any static host)
 
-`npm run build` compiles the CSS and copies the 15 pages and `assets/` into `public/`.
+`npm run build` compiles the CSS and copies the 17 pages and `assets/` into `public/`.
 
 - **Vercel:** `vercel.json` is included (build command `npm run build`, output directory `public`). Import the repo and deploy. If Project Settings has an Output Directory override, clear it or set it to `public`.
 - **Netlify:** build command `npm run build`, publish directory `public`.
@@ -54,7 +55,7 @@ Tailwind scans `*.html` and `assets/js/**/*.js`. If you add a class that isn't u
 ## Folder structure
 
 ```
-├── *.html                  15 pages
+├── *.html                  17 pages
 ├── assets/
 │   ├── css/style.css       compiled Tailwind output (don't edit by hand)
 │   ├── js/main.js          all interactions (data-attribute driven modules)
@@ -134,8 +135,8 @@ All motion respects `prefers-reduced-motion`.
 
 ## Pre-delivery QA performed
 
-- Overflow sweep on all 15 pages at 360, 390, 768, 900, 1024, 1180, 1280, 1440 and 1920 px, in light and dark, LTR and RTL: no horizontal scroll and no console errors
-- The header stays visible while scrolling (it never hides). Desktop nav appears at 1024 px with no collisions. The "Drop alerts" CTA appears only from 1280 px.
+- Overflow sweep on all 17 pages at 360, 390, 768, 900, 1024, 1180, 1280, 1440 and 1920 px, in light and dark, LTR and RTL: no horizontal scroll and no console errors
+- The header stays visible while scrolling (it never hides). The full desktop nav (with About as its own item) appears at 1280 px with even spacing; below that a menu button opens the drawer. Sign up shows from 768 px and Log in as text from 1536 px (an account icon below that).
 - Mobile menu, bag and filter drawers are fixed overlays, so page content never shifts when they open
 - Header controls are never duplicated in the drawer (theme and RTL buttons move into the drawer only below 640 px)
 - Product-card CTAs stay on one line and align across every grid row at every width
@@ -152,7 +153,7 @@ All motion respects `prefers-reduced-motion`.
 
 ## Test results (latest run)
 
-- W3C Nu HTML Checker: 0 errors on all 15 pages
+- W3C Nu HTML Checker: 0 errors on all 17 pages
 - axe-core (WCAG 2.1 AA + best practices): 0 violations in light/dark × LTR/RTL
 - Links: 1,043 internal links/anchors and 331 external links verified; no dead `#` links
 - Keyboard: skip link, visible focus on every tab stop, Escape closes menus, focus trap in drawers and modals

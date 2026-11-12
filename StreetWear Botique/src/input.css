@@ -120,6 +120,21 @@
   .form-label { @apply mb-2 block font-mono text-[11px] font-bold uppercase tracking-[0.18em] text-muted; }
   .form-input { @apply h-12 w-full rounded-xl border border-fg/15 bg-surface px-4 text-base text-fg placeholder:text-muted/80 transition focus:border-accenttext focus:outline-none focus:ring-4 focus:ring-accent/25; }
   textarea.form-input { @apply h-auto py-3; }
+  div:has(> .is-invalid) + .form-error { @apply block; }
+  .hero-chip { @apply inline-flex items-center rounded-full border border-white/15 bg-ink/65 px-4 py-2 shadow-lg backdrop-blur-md; }
+  .hero-chip .breadcrumb { @apply text-[12px] text-white/90; }
+  .hero-chip .breadcrumb a:hover { @apply text-brand; }
+  .hero-eyebrow { @apply gap-2.5 font-mono text-[12px] font-bold uppercase tracking-[0.22em] text-white; }
+  .hero-eyebrow::before { content: ''; @apply h-2 w-2 rounded-full bg-brand; }
+  .eyebrow-center::after { content: ''; @apply h-px w-8 bg-current; }
+  .pw-meter span { @apply h-1.5 rounded-full bg-fg/10 transition-colors; }
+  .pw-meter[data-level='1'] span:nth-child(-n+1) { background: rgb(var(--c-danger)); }
+  .pw-meter[data-level='2'] span:nth-child(-n+2) { background: #F5A623; }
+  .pw-meter[data-level='3'] span:nth-child(-n+3) { background: rgb(var(--c-accent)); }
+  .pw-meter[data-level='4'] span { background: #1FA971; }
+  @keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.08) translate3d(-1%, -1%, 0); } }
+  .animate-kenburns { animation: kenburns 22s ease-in-out infinite alternate; transform-origin: 60% 40%; }
+  @media (prefers-reduced-motion: reduce) { .animate-kenburns { animation: none; } }
   select.form-input { -webkit-appearance: none; -moz-appearance: none; appearance: none; padding-inline-end: 2.75rem; cursor: pointer;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat; background-size: 16px 16px; background-position: right 1rem center; }
@@ -154,6 +169,8 @@
   .prose-kr ul li { position: relative; padding-inline-start: 1.5rem; line-height: 1.65; }
   .prose-kr ul li::before { content: ''; position: absolute; inset-inline-start: 0; top: .7em; width: .5rem; height: .5rem; border-radius: 2px; background: rgb(var(--c-accent)); transform: rotate(45deg); }
   .prose-kr blockquote { @apply my-8 rounded-2xl border border-fg/10 bg-surface2 p-6 font-display text-2xl uppercase leading-tight sm:p-8 sm:text-3xl; border-inline-start: 4px solid rgb(var(--c-accent)); }
+  .prose-kr > p:first-child { @apply text-xl leading-relaxed text-fg sm:text-[1.35rem]; }
+  .prose-kr h2 { scroll-margin-top: calc(var(--header-h) + 24px); }
   .prose-kr .prose-fig { @apply mx-auto my-8 max-w-xl overflow-hidden rounded-2xl; }
   .prose-kr .prose-fig img { @apply aspect-[16/10] w-full object-cover; }
   .prose-kr a { @apply font-semibold text-accenttext underline underline-offset-4; }
@@ -170,9 +187,9 @@
     background: rgb(var(--c-bg) / .78); backdrop-filter: blur(16px) saturate(1.4); -webkit-backdrop-filter: blur(16px) saturate(1.4);
     border-bottom: 1px solid rgb(var(--c-fg) / .08); transition: transform .4s ease, background .3s; }
   
-  .nav-link { @apply relative inline-flex h-10 items-center gap-1 rounded-full px-3.5 text-[13px] font-bold uppercase tracking-[0.1em] text-fg/80 transition hover:text-fg; }
+  .nav-link { @apply relative inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-[13px] font-bold uppercase tracking-[0.1em] text-fg/80 transition hover:bg-fg/[0.06] hover:text-fg xl:px-4 2xl:px-5; }
   .nav-link[aria-current='page'] { @apply text-fg; }
-  .nav-link[aria-current='page']::after { content: ''; @apply absolute bottom-1 start-3.5 end-3.5 h-0.5 rounded bg-accent; }
+  .nav-link[aria-current='page']::after { content: ''; @apply absolute bottom-1 start-3 end-3 h-0.5 rounded bg-accent xl:start-4 xl:end-4 2xl:start-5 2xl:end-5; }
   .dropdown { @apply invisible absolute start-0 top-full z-10 mt-2 w-60 translate-y-2 rounded-2xl border border-fg/10 bg-surface p-2 opacity-0 shadow-2xl transition duration-200; }
   .has-dropdown:hover .dropdown, .has-dropdown:focus-within .dropdown, .has-dropdown.is-open .dropdown { @apply visible translate-y-0 opacity-100; }
   .dropdown a { @apply flex items-center justify-between rounded-xl px-4 py-2.5 text-sm font-semibold text-fg/80 transition hover:bg-fg/5 hover:text-fg; }
